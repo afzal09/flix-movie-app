@@ -1,11 +1,21 @@
-const state = {
+const global = {
   currentpage: window.location.pathname,
+  search: {
+    type: " ",
+    term: " ",
+    page: 1,
+    total_pages: 1,
+  },
+  api:{
+    key:"76e353fa85bd1df2f7b5793d2b5dfeaa",
+    url:"https://api.themoviedb.org/3/"
+  }
 };
 
 // Init app
 
 function router() {
-  switch (state.currentpage) {
+  switch (global.currentpage) {
     case "/":
     case "/index.html":
         displayPopularMovies();
@@ -15,7 +25,7 @@ function router() {
       displayMovieDetails();
       break;
     case "/search.html":
-      ;
+      search();
       break;
     case "/shows.html":
       displayPopular_TvShows();
@@ -28,19 +38,23 @@ function router() {
 }
 document.addEventListener("DOMContentLoaded", router);
 
-function highlightactivelink() {
-  const link = document.querySelectorAll(".nav-link");
-  link.forEach((link) => {
-    if (link.getAttribute("href") === state.currentpage)
-      link.classList.add("active");
-  });
+// search Api data
+
+async function SearchApiData () {
+  API_url = global.api.url;
+  API_key = global.api.key;
+  ShowSpinner();
+  const response = await fetch(`${API_url}search/${global.search.type}?api_key=${API_key}&Language=en-US&query=${global.search.term}`);
+  const result = await response.json();
+  HideSpinner();
+  return result;
 }
 
 // fetch Api Data 
 
 async function FetchApiData (endpoint) {
-    API_url = "https://api.themoviedb.org/3/"
-    API_key = "76e353fa85bd1df2f7b5793d2b5dfeaa"
+    API_url = global.api.url;
+    API_key = global.api.key;
     ShowSpinner();
     const response = await fetch(`${API_url}${endpoint}?api_key=${API_key}&Language=en-US`);
     const result = await response.json();
@@ -126,6 +140,7 @@ document.querySelector("#movie-details").appendChild(div);
 }
 
 // display show details
+
 async function displayShowDetails() {
   const showId = window.location.search.split('=')[1];
 
@@ -194,6 +209,83 @@ async function displayShowDetails() {
 
   document.querySelector('#show-details').appendChild(div);
 }
+
+//search movies & tv 
+
+async function search() {
+  const query = window.location.search;
+  const urlparams = new URLSearchParams(query);
+  global.search.type = urlparams.get('type');
+  global.search.term = urlparams.get('search-term');
+    
+  // alert 
+  
+  if (global.search.term !== " " && global.search.term !== null) {
+    const { results , total_pages, page} = await SearchApiData();
+    if (results.length === 0) {
+      showalert('no movie found');
+      return;
+    }
+    displaySearchResults(results);
+  }else{
+    showalert("enter search term");
+  }
+}
+
+// SearchResults
+
+function displaySearchResults(results){
+  results.forEach((result) => {
+    const div = document.createElement('div');
+    div.classList.add('card');
+    div.innerHTML = `
+          <a href="${global.search.type}-details.html?id=${result.id}">
+            ${
+              result.poster_path
+                ? `<img
+              src="https://image.tmdb.org/t/p/w500/${result.poster_path}"
+              class="card-img-top"
+              alt="${
+                global.search.type === 'movie' ? result.title : result.name
+              }"
+            />`
+                : `<img
+            src="../images/no-image.jpg"
+            class="card-img-top"
+             alt="${
+               global.search.type === 'movie' ? result.title : result.name
+             }"
+          />`
+            }
+          </a>
+          <div class="card-body">
+            <h5 class="card-title">${
+              global.search.type === 'movie' ? result.title : result.name
+            }</h5>
+            <p class="card-text">
+              <small class="text-muted">Release: ${
+                global.search.type === 'movie'
+                  ? result.release_date
+                  : result.first_air_date
+              }</small>
+            </p>
+          </div>
+        `;
+
+    document.querySelector('#search-results').appendChild(div);
+  });
+}
+
+// alert 
+
+function showalert(message,classname = 'error') {
+const alert = document.createElement("div");
+alert.classList.add('alert',classname);
+alert.appendChild(document.createTextNode(message))
+document.querySelector('#alert').appendChild(alert)
+setTimeout(() => alert.remove(), 3000);
+}
+
 // Regex for adding commas to numbers
 
 function addCommasToNumber(number) {
@@ -297,5 +389,15 @@ function initSwiper() {
         slidesPerView: 4,
       },
     },
+  });
+}
+
+// highlight active links 
+
+function highlightactivelink() {
+  const link = document.querySelectorAll(".nav-link");
+  link.forEach((link) => {
+    if (link.getAttribute("href") === state.currentpage)
+      link.classList.add("active");
   });
 }
