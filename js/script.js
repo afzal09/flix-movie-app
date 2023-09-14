@@ -4,7 +4,8 @@ const global = {
     type: " ",
     term: " ",
     page: 1,
-    total_pages: 1,
+    total_pages: 0,
+    total_results:0,
   },
   api:{
     key:"76e353fa85bd1df2f7b5793d2b5dfeaa",
@@ -44,7 +45,7 @@ async function SearchApiData () {
   API_url = global.api.url;
   API_key = global.api.key;
   ShowSpinner();
-  const response = await fetch(`${API_url}search/${global.search.type}?api_key=${API_key}&Language=en-US&query=${global.search.term}`);
+  const response = await fetch(`${API_url}search/${global.search.type}?api_key=${API_key}&Language=en-US&query=${global.search.term}&page=${global.search.page}`);
   const result = await response.json();
   HideSpinner();
   return result;
@@ -221,12 +222,14 @@ async function search() {
   // alert 
   
   if (global.search.term !== " " && global.search.term !== null) {
-    const { results , total_pages, page} = await SearchApiData();
+    const { results , page, total_pages ,total_results} = await SearchApiData();
+    global.search.page = page;
+    global.search.total_pages = total_pages;
     if (results.length === 0) {
       showalert('no movie found');
       return;
     }
-    displaySearchResults(results);
+    displaySearchResults(results,page, total_pages, total_results);
   }else{
     showalert("enter search term");
   }
@@ -234,7 +237,10 @@ async function search() {
 
 // SearchResults
 
-function displaySearchResults(results){
+function displaySearchResults(results ,total_pages, page, total_results){
+  document.querySelector('#search-results').innerHTML = ' ';
+  document.querySelector('#search-results-heading').innerHTML = ' ';
+  document.querySelector('#pagination').innerHTML = ' ';
   results.forEach((result) => {
     const div = document.createElement('div');
     div.classList.add('card');
@@ -270,10 +276,40 @@ function displaySearchResults(results){
               }</small>
             </p>
           </div>
-        `;
-
+          `;
+    document.querySelector('#search-results-heading').innerHTML= `<h2> Total results ${results.length} of ${total_results}`;
     document.querySelector('#search-results').appendChild(div);
   });
+  displayPagination();
+}
+
+//pagination
+
+function displayPagination(){
+  const div = document.createElement('div');
+  div.classList.add('pagination');
+  div.innerHTML = `<button class="btn btn-primary" id="prev">Prev</button>
+  <button class="btn btn-primary" id="next">Next</button>
+  <div class="page-counter">Page ${global.search.page} of ${global.search.total_pages} </div>`
+  document.querySelector('#pagination').appendChild(div);
+  if (global.search.page === 1){
+    document.querySelector('#prev').disabled = true;
+  }
+  if (global.search.page === global.search.total_pages){
+    document.querySelector('#next').disabled = true;
+  }
+  // forward to next page
+  document.querySelector('#next').addEventListener('click',async () => {
+    global.search.page++;
+    const {results , total_pages} = await SearchApiData();
+    displaySearchResults(results)})
+
+  // forward to back page
+  document.querySelector('#prev').addEventListener('click',async () => {
+    global.search.page--;
+    const {results , total_pages} = await SearchApiData();
+    displaySearchResults(results)
+  })
 }
 
 // alert 
