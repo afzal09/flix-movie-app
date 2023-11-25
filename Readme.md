@@ -5,7 +5,7 @@
 **Author:** Afzal M  
 **Date:** 19 Aug 2023
 
-Adictzz is a simple Vanilla JavaScript application that leverages the TMDB API to fetch movie data dynamically and displays it in the DOM through advanced DOM manipulation. Developed with a focus on asynchronous JavaScript and DOM manipulation techniques, Adictzz showcases the use of features such as async/await, the Fetch API, and other modern functionalities.
+Adictzz is a simple Vanilla JavaScript application that leverages the TMDB API to fetch movie data dynamically and displays it in the DOM through DOM manipulation. Developed with a focus on asynchronous JavaScript and DOM manipulation techniques, Adictzz showcases the use of features such as async/await, the Fetch API, and other modern functionalities.
 
 ## Features
 
@@ -34,6 +34,6 @@ Visit the deployed version of Adictzz at. &nbsp;[**https://adictzz.netlify.app/*
 
 To experience Adictzz locally, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/your-username/adictzz.git`
+1. Clone the repository
 2. Open the application locally in your preferred web server.
 3. Open the application in your preferred web browser.
