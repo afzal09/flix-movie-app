@@ -26,6 +26,10 @@ The core functionality of Adictzz is built using pure JavaScript, emphasizing th
 
 Git is employed for version control, ensuring efficient collaboration and a robust history of changes.
 
+### Deployment
+
+Visit the deployed version of Adictzz at. &nbsp;[**https://adictzz.netlify.app/**](https://adictzz.netlify.app).
+
 ## How to Run Locally
 
 To experience Adictzz locally, follow these steps:
